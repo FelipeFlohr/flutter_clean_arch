@@ -46,3 +46,8 @@ void main() {
 ```
 
 **Nota-se que é necessário rodar o comando** `flutter pub run build_runner build --delete-conflicting-outputs` **no terminal** para gerar as classes mocadas compiladas.
+
+## 2. A Infrastructure (Infra) / Data
+Esta camada dá suporte a camada **Domain** implementando suas interfaces. Para isso, adapta os dados externos para que possa cumprir os contratos do domínio.
+
+Nessa camada foi implementada as interfaces que podem ou não depender de dados externos como uma API.
