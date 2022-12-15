@@ -44,3 +44,5 @@ void main() {
   });
 }
 ```
+
+**Nota-se que é necessário rodar o comando** `flutter pub run build_runner build --delete-conflicting-outputs` **no terminal** para gerar as classes mocadas compiladas.
