@@ -15,6 +15,11 @@ class SearchByTextImpl implements SearchByText {
   @override
   Future<Either<FailureSearch, List<ResultSearch>>> call(
       String searchText) async {
+    // Dentro da implementação do Use Case é aonde fica as validações
+    if (searchText.trim() == "") {
+      return Left(InvalidTextError());
+    }
+
     return repository.search(searchText);
   }
 }
