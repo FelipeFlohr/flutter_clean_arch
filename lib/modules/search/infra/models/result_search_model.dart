@@ -1,4 +1,3 @@
-// ignore_for_file: public_member_api_docs, sort_constructors_first
 import 'dart:convert';
 
 import 'package:mobile_onboarding_clean_arch/modules/search/domain/entities/result_search.dart';
@@ -25,9 +24,9 @@ class ResultSearchModel extends ResultSearch {
 
   factory ResultSearchModel.fromMap(Map<String, dynamic> map) {
     return ResultSearchModel(
-      title: map['title'] as String,
-      content: map['content'] as String,
-      img: map['img'] as String,
+      title: map['login'] as String,
+      content: map['html_url'] as String,
+      img: map['avatar_url'] as String,
     );
   }
 

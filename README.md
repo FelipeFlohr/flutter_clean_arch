@@ -56,3 +56,36 @@ Nessa camada foi implementada as interfaces que podem ou não depender de dados 
 A camada external deve conter tudo aquilo que terá grandes chances de ser alterado sem que o programador possa intervir diretamente no projeto. Exemplo: num sistema onde o login é feito com o Firebase Auth, há a demanda de trocar por outro serviço. Para isso, bastaria apenas implementar um datasource baseado no outro provider e "Inverter a dependência" assim quando necessário.
 
 Os Datasources devem se preocupar apenas em "descobrir" os dados externos e enviar para a camada de Infra para serem tratados. Da mesma forma os objetos **Drivers** devem apenas retornar as informações solicitadas sobre o Hardware do Device e não devem fazer tratamento fora ao que lhe foi solicitado no contrato.
+
+## 4. Injeção de dependências
+A injeção de dependências foi realizada com o Modular, uma dependência desenvolvida pela própria galera do Flutterando. A mesma foi inspirada no Angular e precisa ser instanciada no inicializar da Aplicação, veja:
+```dart
+void main() {
+  runApp(ModularApp(
+    module: AppModule(), // <- Contêm os módulos da aplicação
+    child: const AppWidget(), // <- Contêm o Entrypoint da UI da aplicação
+  ));
+}
+```
+
+Um exemplo de módulos seria o seguinte:
+```dart
+class AppModule extends Module {
+  @override
+  List<Bind> get binds => [
+    Bind.factory((i) => Dio()),
+    Bind.factory((i) => GithubDatasource(dio: i())),
+    Bind.factory((i) => SearchRepositoryImpl(i())),
+    Bind.factory((i) => SearchByTextImpl(i())),
+  ];
+
+  @override
+  final List<ModularRoute> routes = [];
+}
+```
+
+Um bind pode ter os seguintes quatro tipos:
+- *`Bind.singleton`*: Cria uma única instância quando o módulo é inicializado
+- *`Bind.lazySingleton`*: Cria uma única instância quando o Bind for chamado
+- *`Bind.factory`*: Cria uma instância conforme a demanda
+- *`Bind.instance`*: Adiciona uma instância já existente 
