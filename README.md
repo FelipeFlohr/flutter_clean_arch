@@ -51,3 +51,8 @@ void main() {
 Esta camada dá suporte a camada **Domain** implementando suas interfaces. Para isso, adapta os dados externos para que possa cumprir os contratos do domínio.
 
 Nessa camada foi implementada as interfaces que podem ou não depender de dados externos como uma API.
+
+## 3. A External
+A camada external deve conter tudo aquilo que terá grandes chances de ser alterado sem que o programador possa intervir diretamente no projeto. Exemplo: num sistema onde o login é feito com o Firebase Auth, há a demanda de trocar por outro serviço. Para isso, bastaria apenas implementar um datasource baseado no outro provider e "Inverter a dependência" assim quando necessário.
+
+Os Datasources devem se preocupar apenas em "descobrir" os dados externos e enviar para a camada de Infra para serem tratados. Da mesma forma os objetos **Drivers** devem apenas retornar as informações solicitadas sobre o Hardware do Device e não devem fazer tratamento fora ao que lhe foi solicitado no contrato.
