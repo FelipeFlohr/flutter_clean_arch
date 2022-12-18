@@ -89,3 +89,154 @@ Um bind pode ter os seguintes quatro tipos:
 - *`Bind.lazySingleton`*: Cria uma única instância quando o Bind for chamado
 - *`Bind.factory`*: Cria uma instância conforme a demanda
 - *`Bind.instance`*: Adiciona uma instância já existente 
+
+## 5. A Presenter
+A camada **Presenter** é a responsável por declarar as entradas, saídas e interações da aplicação. Nela contém os Widgets, Pages, States e Stores de um módulo. Na gerência de estado desse exemplo foi utilizado o ***Cubit***, que faz parte da biblioteca do *BLoC*. Veja as declarações de estado:
+```dart
+abstract class SearchState {}
+
+class SearchSuccess implements SearchState {
+  final List<ResultSearch> list;
+
+  SearchSuccess(this.list);
+}
+
+class SearchStart implements SearchState {}
+
+class SearchLoading implements SearchState {}
+
+class SearchError implements SearchState {}
+```
+Repare como as últimas quatro classes implementam o `SearchState`. Com os estados declarados, basta implementar o Store, veja:
+```dart
+class SearchStore extends Cubit<SearchState> {
+  final SearchByText usecase;
+
+  SearchStore(this.usecase) : super(SearchStart());
+
+  get(String searchText) async {
+    emit(SearchLoading());
+
+    final res = await usecase(searchText);
+    res.fold(
+      (l) {
+        emit(SearchError());
+      },
+      (r) {
+        final searchSuccess = SearchSuccess(r);
+        emit(searchSuccess);
+      },
+    );
+  }
+}
+```
+Repare que o Store herda a classe `Cubit` passando o tipo `SearchState` como genérico. Além disso, recebe o *usecase* SearchByText via injeção de dependências. No mais, a classe possui o método `get`, na qual busca os usuários baseado no parâmetro *searchText*. De inicio, o método emite o estado ***`SearchLoading`***, e, caso tenha sucesso, emite o ***`SearchSuccess`***, senão emitirá o ***`SearchError`***.
+
+A renderização é feita utilizando o `BlocBuilder`, veja:
+```dart
+class _SearchPageState extends State<SearchPage> {
+  final searchPageStore = Modular.get<SearchStore>();
+  Timer? _debounce;
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: const Text("Github Search"),
+      ),
+      body: Column(
+        children: [
+          Padding(
+            padding: const EdgeInsets.only(
+              left: 8,
+              right: 8,
+              top: 8,
+            ),
+            child: TextField(
+              decoration: const InputDecoration(
+                border: OutlineInputBorder(),
+                label: Text("Search..."),
+              ),
+              onChanged: _onSearchChanged,
+            ),
+          ),
+          Expanded(
+            child: BlocBuilder(
+              bloc: searchPageStore,
+              builder: (context, state) {
+                if (state is SearchError) {
+                  return _getFailed();
+                } else if (state is SearchLoading) {
+                  return _getLoading();
+                } else if (state is SearchSuccess) {
+                  return _getSuccess(state.list);
+                } else {
+                  return _getDefault();
+                }
+              },
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+```
+Conforme cada estado, o *BlocBuilder* chama um método que retorna um Widget para representar o estado atual. Nos Widgets *padrão* e de erro, retorna um simples Widget de Text, veja:
+
+*Widget padrão:*
+```dart
+_getDefault() {
+  return const Text("Digite um usuário");
+}
+```
+*Widget de erro:*
+```dart
+_getFailed() {
+  return const Text("Ocorreu um erro. Tente novamente mais tarde.");
+}
+```
+<br />
+Nos estados e *Loading* e de sucesso, retorna um Widget mais robusto. Veja:
+
+*Widget de Loading:*
+```dart
+_getLoading() {
+  return const Center(
+    child: CircularProgressIndicator(),
+  );
+}
+```
+*Widget de sucesso:*
+```dart
+_getSuccess(List<ResultSearch> list) {
+  return ListView.builder(
+    itemCount: list.length,
+    itemBuilder: (_, index) {
+      final item = list[index];
+      return ListTile(
+        title: Text(item.title),
+        leading: CircleAvatar(
+          backgroundImage: NetworkImage(item.img),
+        ),
+        subtitle: Text(item.content),
+      );
+    },
+  );
+}
+```
+---
+Também foi implementado um *debounce* no TextInput, para fazer com que não fique consumindo excessivamente a API do GitHub. O *debounce* possui um delay de 800ms. Veja a implementação:
+```dart
+_onSearchChanged(String searchText) {
+  if (_debounce?.isActive ?? false) {
+    _debounce?.cancel();
+  }
+  _debounce = Timer(
+    const Duration(milliseconds: 800),
+    () async { // <- Callback
+      await searchPageStore.get(searchText);
+    },
+  );
+}
+```

@@ -6,6 +6,7 @@ import 'package:mobile_onboarding_clean_arch/modules/search/external/datasources
 import 'package:mobile_onboarding_clean_arch/modules/search/infra/datasources/search_datasource.dart';
 import 'package:mobile_onboarding_clean_arch/modules/search/infra/repositories/search_repository_impl.dart';
 import 'package:mobile_onboarding_clean_arch/modules/search/presenter/search_page.dart';
+import 'package:mobile_onboarding_clean_arch/modules/search/presenter/stores/search_store.dart';
 
 class AppModule extends Module {
   @override
@@ -14,6 +15,7 @@ class AppModule extends Module {
         Bind.factory<SearchDatasource>((i) => GithubDatasource(dio: i())),
         Bind.factory<SearchRepository>((i) => SearchRepositoryImpl(i())),
         Bind.factory<SearchByText>((i) => SearchByTextImpl(i())),
+        Bind.singleton<SearchStore>((i) => SearchStore(i())),
       ];
 
   @override
