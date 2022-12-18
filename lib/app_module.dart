@@ -1,18 +1,26 @@
 import 'package:dio/dio.dart';
 import 'package:flutter_modular/flutter_modular.dart';
+import 'package:mobile_onboarding_clean_arch/modules/search/domain/repositories/search_repository.dart';
 import 'package:mobile_onboarding_clean_arch/modules/search/domain/usecases/search_by_text.dart';
 import 'package:mobile_onboarding_clean_arch/modules/search/external/datasources/github_datasources.dart';
+import 'package:mobile_onboarding_clean_arch/modules/search/infra/datasources/search_datasource.dart';
 import 'package:mobile_onboarding_clean_arch/modules/search/infra/repositories/search_repository_impl.dart';
+import 'package:mobile_onboarding_clean_arch/modules/search/presenter/search_page.dart';
 
 class AppModule extends Module {
   @override
   List<Bind> get binds => [
-        Bind.factory((i) => Dio()),
-        Bind.factory((i) => GithubDatasource(dio: i())),
-        Bind.factory((i) => SearchRepositoryImpl(i())),
-        Bind.factory((i) => SearchByTextImpl(i())),
+        Bind.factory<Dio>((i) => Dio()),
+        Bind.factory<SearchDatasource>((i) => GithubDatasource(dio: i())),
+        Bind.factory<SearchRepository>((i) => SearchRepositoryImpl(i())),
+        Bind.factory<SearchByText>((i) => SearchByTextImpl(i())),
       ];
 
   @override
-  final List<ModularRoute> routes = [];
+  final List<ModularRoute> routes = [
+    ChildRoute(
+      "/",
+      child: (context, args) => const SearchPage(),
+    ),
+  ];
 }

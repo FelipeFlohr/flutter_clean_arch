@@ -14,7 +14,7 @@ void main() {
   final repository = MockSearchRepository();
   final usecase = SearchByTextImpl(repository);
 
-  test("should return a ResultSearch list", () async {
+  test("Should return a ResultSearch list", () async {
     when(repository.search(any))
         .thenAnswer((_) async => const Right(<ResultSearch>[]));
 
@@ -26,7 +26,7 @@ void main() {
     });
   });
 
-  test("should return an exception if the text is invalid", () async {
+  test("Should return an exception if the text is invalid", () async {
     when(repository.search(any))
         .thenAnswer((_) async => const Right(<ResultSearch>[]));
 

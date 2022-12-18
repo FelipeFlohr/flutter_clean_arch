@@ -15,7 +15,7 @@ void main() {
   final datasource = MockSearchDatasource();
   final repository = SearchRepositoryImpl(datasource);
 
-  test("should return a list of ResultSearchModel", () async {
+  test("Should return a list of ResultSearchModel", () async {
     when(datasource.getSearch(any))
         .thenAnswer((_) async => <ResultSearchModel>[]);
     final result = await repository.search("felipe");
@@ -25,7 +25,7 @@ void main() {
         (r) => expect(r, isA<List<ResultSearch>>()));
   });
 
-  test("should return a DatasourceError if datasource fails", () async {
+  test("Should return a DatasourceError if datasource fails", () async {
     when(datasource.getSearch(any)).thenThrow(Exception());
 
     final result = await repository.search("felipe");
